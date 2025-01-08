@@ -20,5 +20,7 @@ spring:
     consumer:
       group-id: user-orders-group
       auto-offset-reset: earliest
+    producer:
+      retries: 3
 
 

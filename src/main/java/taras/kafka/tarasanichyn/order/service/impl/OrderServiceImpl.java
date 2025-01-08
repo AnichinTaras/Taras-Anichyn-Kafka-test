@@ -17,12 +17,16 @@ import taras.kafka.tarasanichyn.user.exception.UserNotFoundException;
 import taras.kafka.tarasanichyn.user.persistence.UserEntity;
 import taras.kafka.tarasanichyn.user.repository.UserRepository;
 
-@Service
+import org.springframework.kafka.core.KafkaTemplate;
+
 @RequiredArgsConstructor
+@Service
 public class OrderServiceImpl implements OrderService {
   private final OrderRepository orderRepository;
   private final UserRepository userRepository;
   private final DtoMapper mapper;
+  private final KafkaTemplate<String, String> kafkaTemplate;
+  private static final String ORDER_TOPIC = "user-orders-topic";
 
   @Override
   public OrderListResponse getAllOrders() {
@@ -34,13 +38,17 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public OrderCreateResponse createOrder(final OrderCreateRequest request) {
-    UserEntity user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);
+    UserEntity user = userRepository.findById(request.getUserId())
+        .orElseThrow(UserNotFoundException::new);
     OrderEntity entity = mapper.fromCreateRequest(request);
     entity.setUser(user);
     entity = orderRepository.save(entity);
+    String message = "New order created: Product - " + request.getProduct() + ", Quantity - " + request.getQuantity() +
+        ", User - " + user.getName() + " (Email: " + user.getEmail() + ")";
+
+    kafkaTemplate.send(ORDER_TOPIC, message);
     return mapper.toCreateResponse(entity);
   }
-
 
   @Mapper(componentModel = "spring")
   public interface DtoMapper {
