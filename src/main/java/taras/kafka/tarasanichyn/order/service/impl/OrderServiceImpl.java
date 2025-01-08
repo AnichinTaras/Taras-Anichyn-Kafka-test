@@ -34,8 +34,8 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public OrderCreateResponse createOrder(final OrderCreateRequest request) {
-    OrderEntity entity = mapper.fromCreateRequest(request);
     UserEntity user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);
+    OrderEntity entity = mapper.fromCreateRequest(request);
     entity.setUser(user);
     entity = orderRepository.save(entity);
     return mapper.toCreateResponse(entity);
