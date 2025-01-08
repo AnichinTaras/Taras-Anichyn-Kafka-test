@@ -3,7 +3,6 @@ package taras.kafka.tarasanichyn.order.service.impl;
 import java.util.List;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
