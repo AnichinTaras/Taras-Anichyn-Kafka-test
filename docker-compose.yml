@@ -28,6 +28,15 @@ services:
       - "9093:9093"
     depends_on:
       - zookeeper
+  app:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:latest
     container_name: postgres_container
