@@ -23,4 +23,12 @@ spring:
     producer:
       retries: 3
 
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # Expose health, info, and metrics endpoints
+      base-path: /actuator  # Customize the base path for actuator endpoints
+  endpoint:
+    health:
+      show-details: always  # Show full details for the health endpoint
