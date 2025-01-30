@@ -14,7 +14,7 @@ services:
     image: wurstmeister/kafka:latest
     container_name: kafka
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE_KAFKA://kafka:9092,OUTSIDE_KAFKA://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: INSIDE_KAFKA://kafka:9092,OUTSIDE_KAFKA://host.docker.internal:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
       KAFKA_LISTENER_NAMES: INSIDE_KAFKA,OUTSIDE_KAFKA
       KAFKA_LISTENERS: INSIDE_KAFKA://0.0.0.0:9092,OUTSIDE_KAFKA://0.0.0.0:9093
@@ -86,6 +86,7 @@ services:
       - "9308:9308"
     depends_on:
       - kafka
+    restart: always
 
   postgres_exporter:
     image: wrouesnel/postgres_exporter:latest
