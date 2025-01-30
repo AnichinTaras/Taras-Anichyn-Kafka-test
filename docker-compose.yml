@@ -26,15 +26,6 @@ services:
       - "9093:9093"
     depends_on:
       - zookeeper
-  app:
-    build: .
-    ports:
-      - "8081:8081"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-    depends_on:
-      - postgres
-      - kafka
 
   postgres:
     image: postgres:latest
@@ -47,5 +38,65 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  app:
+    container_name: app
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - postgres
+      - kafka
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - /Users/anichyntaras/Desktop/Taras-Anichyn-Kafka-test/prometheus-data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - app
+      - kafka_exporter
+      - postgres_exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+
+  kafka_exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka_exporter
+    environment:
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "9308:9308"
+    depends_on:
+      - kafka
+
+  postgres_exporter:
+    image: wrouesnel/postgres_exporter:latest
+    container_name: postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:root@postgres:5432/user_orders?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
+  grafana_data:
